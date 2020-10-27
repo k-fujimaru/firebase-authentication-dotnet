@@ -19,14 +19,11 @@
 
         public event EventHandler<FirebaseAuthEventArgs> FirebaseAuthRefreshed;
 
-        internal IFirebaseAuthProvider AuthProvider
+        internal IFirebaseAuthProvider AuthProvider 
         {
             get;
             set;
         }
-
-        private System.Threading.SemaphoreSlim LockForRefreshAuth = new System.Threading.SemaphoreSlim(1);
-
 
         /// <summary>
         /// Links the user with an email and password.  
@@ -82,19 +79,11 @@
 
         public async Task<FirebaseAuthLink> GetFreshAuthAsync()
         {
-            try
+            if (this.IsExpired())
             {
-                await LockForRefreshAuth.WaitAsync();
-                if (this.IsExpired())
-                {
-                    var auth = await this.AuthProvider.RefreshAuthAsync(this).ConfigureAwait(false);
-                    this.CopyPropertiesLocally(auth.AuthProvider, auth);
-                    this.OnFirebaseAuthRefreshed(auth);
-                }
-            }
-            finally
-            {
-                LockForRefreshAuth.Release();
+                var auth = await this.AuthProvider.RefreshAuthAsync(this).ConfigureAwait(false);
+                this.CopyPropertiesLocally(auth.AuthProvider, auth);
+                this.OnFirebaseAuthRefreshed(auth);
             }
 
             return this;
