@@ -93,6 +93,22 @@
         /// <summary>
         /// Linked accounts: account to link has already been linked.
         /// </summary>
-        AlreadyLinked
+        AlreadyLinked,
+        /// <summary>
+        /// An invalid refresh token is provided.
+        /// </summary>
+        InvalidRefreshToken,
+        /// <summary>
+        /// The user's credential is no longer valid. The user must sign in again.
+        /// </summary>
+        TokenExpired,
+        /// <summary>
+        /// the grant type specified is invalid.
+        /// </summary>
+        InvalidGrantType,
+        /// <summary>
+        /// no refresh token provided.
+        /// </summary>
+        MissingRefreshToken,
     }
 }

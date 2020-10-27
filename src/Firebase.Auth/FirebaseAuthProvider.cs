@@ -448,8 +448,9 @@
             try
             {
                 var response = await this.client.PostAsync(new Uri(string.Format(GoogleRefreshAuth, this.authConfig.ApiKey)), new StringContent(content, Encoding.UTF8, "application/json")).ConfigureAwait(false);
-
                 responseData = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                
                 var refreshAuth = JsonConvert.DeserializeObject<RefreshAuth>(responseData);
 
                 return new FirebaseAuthLink
@@ -463,7 +464,8 @@
             }
             catch (Exception ex)
             {
-                throw new FirebaseAuthException(GoogleRefreshAuth, content, responseData, ex);
+                AuthErrorReason errorReason = GetFailureReason(responseData);
+                throw new FirebaseAuthException(GoogleRefreshAuth, content, responseData, ex, errorReason);
             }
         }
 
@@ -530,6 +532,9 @@
 
                         case "OPERATION_NOT_ALLOWED":
                             failureReason = AuthErrorReason.OperationNotAllowed;
+                            break;
+                        case "TOKEN_EXPIRED":
+                            failureReason = AuthErrorReason.TokenExpired;
                             break;
 
                         //possible errors from Third Party Authentication using GoogleIdentityUrl
@@ -599,6 +604,17 @@
                             break;
                         case "FEDERATED_USER_ID_ALREADY_LINKED":
                             failureReason = AuthErrorReason.AlreadyLinked;
+                            break;
+
+                        //possible errors from Exchange a refresh token
+                        case "INVALID_REFRESH_TOKEN":
+                            failureReason = AuthErrorReason.InvalidRefreshToken;
+                            break;
+                        case "INVALID_GRANT_TYPE":
+                            failureReason = AuthErrorReason.InvalidGrantType;
+                            break;
+                        case "MISSING_REFRESH_TOKEN":
+                            failureReason = AuthErrorReason.MissingRefreshToken;
                             break;
                     }
 
