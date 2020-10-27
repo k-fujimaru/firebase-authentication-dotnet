@@ -606,7 +606,7 @@
                             failureReason = AuthErrorReason.AlreadyLinked;
                             break;
 
-                        //possible errors from Exchange a refresh token
+                        //possible errors from token refresh
                         case "INVALID_REFRESH_TOKEN":
                             failureReason = AuthErrorReason.InvalidRefreshToken;
                             break;
